@@ -1,2 +1,2 @@
 prog: prog.cc
-	g++ prog.cc -o prog
+	g++ prog.cc -o prog.out
