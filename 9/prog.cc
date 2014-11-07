@@ -1,7 +1,6 @@
 #include <iostream>
 using namespace std;
 
-
 class Queue {
   struct Element {
     int value;
@@ -52,7 +51,6 @@ public:
       pop_front();
   }
 };
-
 
 int main() {
   Queue queue;
