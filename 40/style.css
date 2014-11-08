@@ -1,0 +1,17 @@
+html {
+	font-size: 24pt;
+}
+a:link { /*цвет линки*/
+	color: orange;
+	font-weight: bold;
+}
+a:hover { /*цвет при наведение курсора*/
+	color: red;
+}
+a:visited { /*цвет ссылок по которым уже перешли*/
+	color: green;
+}
+
+a:active { /*цвет ссылки при нажатии на неё*/
+	color: blue;
+}
