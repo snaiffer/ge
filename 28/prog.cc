@@ -20,9 +20,15 @@ int main() {
   cout << "\nInputed array:" << endl;
   outputArray(array, size);
   int maxElement = 0;
+  int maxIndex = 0;
   for(unsigned short i = 0; i < size; i++)
-    maxElement = array[i] > maxElement ? array[i] : maxElement;
+    if (array[i] > maxElement) {
+      maxElement = array[i];
+      maxIndex = i;
+    }
+    // maxElement = array[i] > maxElement ? array[i] : maxElement;
   cout << "\nMax element: " << maxElement << endl;
+  cout << "\nMax element index: " << maxIndex + 1 << endl;
   return 0;
 }
 
