@@ -22,7 +22,7 @@ void outputArray(int* array, int& size) {
   cout << "]" << endl;
 }
 
-int main() {
+int main(int argc, char const *argv[]){
   int size = 3;
   cout << "Input size of array = "; cin >> size;
   int* array = new int[size];
