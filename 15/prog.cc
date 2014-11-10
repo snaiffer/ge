@@ -120,6 +120,7 @@ int main() {
   output(array);
 
   cout << endl;
+  delete[] array;
 
   return 0;
 }
