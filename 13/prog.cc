@@ -4,13 +4,6 @@
 #include <exception>
 #include <string>
 
-#include <fstream>
-#include <sstream>
-
-void funcThatExpectsCstring(char* str)       { std::cout << str;}
-void funcThatExpectsCstring(const char* str) {std::cout << str;}
-
-
 #define DISTINCT 10
 using namespace std;
 
@@ -29,6 +22,7 @@ struct cantfind_substr : public stringException {
 class String {
   char* str;
   int len;
+  int maxlen_inheap;
   char* creationTime;
 
   void fillin_creationTime() {
@@ -52,18 +46,20 @@ public:
   }
 
   char* get_str() const { return str; }
-  int get_len() const { return len; }
+  int get_len() const { return len-1; }
   char* get_creationTime() const { return creationTime; }
 
   void set_str(const char* string) {
     int newlen = strlen(string) + 1;  // with null char
     // Change size to more size in any case and to less one in case of big distinction
-    if (newlen > len || newlen < (len - DISTINCT)) {
+    if (newlen > maxlen_inheap || newlen < (maxlen_inheap - DISTINCT)) {
       delete[] str; str = 0;
       str = new char[newlen];
-      len = newlen;
+      maxlen_inheap = newlen;
     }
+    len = newlen;
     copy(string, string+newlen, str);
+    fillin_creationTime();
   }
 
   String& operator= (const String &string) {
@@ -109,36 +105,13 @@ ostream &operator << (ostream &out, const String &str) {
 
 istream& operator>> (istream &in, String &str) {
   string inputted;
-  getline(in, inputted);
-  getline(in, inputted);
+  getline(in, inputted); getline(in, inputted);
   str.set_str(inputted.c_str());
 
   return in;
 }
 
 int main(int argc, char const *argv[]){
-  /*
-  String str("hello");
-  cout << str.get_creationTime() << endl;
-  cout << str.get_len() << endl;
-  cout << str << endl;
-
-  String str2("hello");
-  String str3(str);
-  str = str3;
-
-  str = "hello";
-  cout << endl;
-  cout << str << endl;
-  try {
-    cout << "Index of substr in str: " << str.find_substr("llo") << endl;
-  }
-  catch(cantfind_substr e) {
-    cout << e.what() << endl;
-  } 
-  */
-
-
   String str("hello");
 
   cout << "List of commands:" << endl;
@@ -146,6 +119,7 @@ int main(int argc, char const *argv[]){
   cout << "\t output" << endl;
   cout << "\t outlen" << endl;
   cout << "\t find" << endl;
+  cout << "\t creation_time" << endl;
   cout << "\t quite" << endl;
   cout << endl;
 
@@ -158,19 +132,21 @@ int main(int argc, char const *argv[]){
     if (cmd == "input" || cmd == "in") {
       cout << " Input string: "; cin >> str;
     } else if ( cmd == "output" || cmd == "out") {
-      cout << str << endl;
+      cout << " " << str << endl;
     } else if ( cmd == "outlen") {
       cout << " Lenght of the string = " << str.get_len() << endl;
     } else if ( cmd == "find") {
       string substr; 
-      cout << " Input substring which you want to find in the inputted string: "; cin >> substr;
+      cout << " Input substring which you want to find in the inputted string: ";
+      getline(cin, substr); getline(cin, substr);
       try {
         cout << " Index of substr in the string = " << str.find_substr(substr.c_str()) << endl;
       }
       catch(cantfind_substr e) {
-        cout << e.what() << endl;
+        cout <<  " " << e.what() << endl;
       } 
-      
+    } else if ( cmd == "creation_time" || cmd == "ct") {
+      cout << " Creation time of the string = " << str.get_creationTime();
     } else if ( cmd == "quite" || cmd == "q") {
       quite = true;
       cout << "exit" << endl;
