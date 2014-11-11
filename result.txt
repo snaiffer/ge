@@ -1288,3 +1288,70 @@ int main() {
 
 
 
+Написать html код для отображения в браузере таблицы:
+1   2
+    3   4
+5   6   7    
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Задание 18</title>
+    <style type="text/css">
+        td {
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>3</td>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+        </tr>
+    </table>    
+</body>
+</html>
+
+Написать код css файла в котором при помощи псевдоклассов описывается поведение ссылок отличное от стандартного.
+
+<html>
+<head>
+    <title></title>
+<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <a href="">Test</a></br>
+    <a href="">Test</a></br>
+    <a href="">Test</a></br>
+    <a href="">Test</a></br>
+</body>
+</html>
+
+html {
+  font-size: 24pt;
+}
+a:link { /*цвет линки*/
+  color: orange;
+  font-weight: bold;
+}
+a:hover { /*цвет при наведение курсора*/
+  color: red;
+}
+a:visited { /*цвет ссылок по которым уже перешли*/
+  color: green;
+}
+
+a:active { /*цвет ссылки при нажатии на неё*/
+  color: blue;
+}
