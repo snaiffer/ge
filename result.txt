@@ -1,0 +1,1290 @@
+
+
+
+Построить программу на языке С++ для работы со структурой Дата. Программа должна
+обеспечивать простейшие функции для работы с данными структуры:
+увеличение/уменьшение на 1 день, ввод значений, вывод значений.
+
+
+
+
+
+#include <iostream>
+#include <string>
+#include <stdexcept>
+using namespace std;
+
+const int mon_len[] = {31,28,31,30,31,30,31,31,30,31,30,31};
+
+struct Date {
+private:
+  unsigned short year;
+  unsigned char month, day;
+public:
+
+  Date(unsigned short y = 2000, unsigned char m = 1, unsigned char d = 1) {
+    year = y;
+    month = m;
+    day = d;
+  }
+
+  int get_year() const { return year; } 
+  int get_month() const { return month; } 
+  int get_day() const { return day; } 
+
+  void set_year(unsigned short y) {
+    if (y > 0 ) {
+      year = y;
+    } else {
+      throw range_error("Error: Value of year is wrong. It must be > 0"); 
+    }
+  }
+
+  void set_month(unsigned char m) {
+    if (m >= 1 && m <= 12) {
+      month = m;
+    } else {
+      throw range_error("Error: Value of month is wrong. It must be between 1 and 12 included"); 
+    }
+  }
+
+  void set_day(unsigned char d) {
+    if (d >= 1 && d <= mon_len[get_month()-1]) {
+      day = d;
+    } else {
+      throw range_error("Error: Value of day is wrong. It must be between 1 and count days of the month included"); 
+    }
+  }
+
+  Date &operator++() { // for prefix // Date &operator++(int) { --for postfix
+    ++day;
+    if (day > mon_len[get_month() - 1]) {
+      day = 1;
+      ++month;
+      if (month > 12) {
+        month = 1;
+        ++year;
+      }
+    }
+    return *this;
+  }
+
+  Date &operator--() { // for prefix // Date &operator--(int) { --for postfix
+    --day;
+    if ( day == 0 ) { 
+      --month;
+      if (month == 0) {
+        month = 12;
+        --year;
+      }
+      day = mon_len[month - 1];
+    }
+    return *this;
+  }
+};
+
+ostream &operator << (ostream &out, const Date &date) {
+  out << 
+    date.get_year() << "." << 
+    int(date.get_month()) << "." << 
+    int(date.get_day());
+  return out;
+}
+
+void input_date(Date &date) {
+  int val;
+  while (true) {
+    cout << "\nInput a new date:" << endl;
+    try {
+      cout << "Input year: ( > 0 ): ";
+      cin >> val;
+      date.set_year(val);
+      cout << "Input month: (from 1 till 12): ";
+      cin >> val;
+      date.set_month(val);
+      cout << "Input day: (from 1 till the count of days in the month): ";
+      cin >> val;
+      date.set_day(val);
+      break;
+    } catch (range_error& e ) {
+      cout << e.what() << endl;
+    }
+    cout << "\nTry again." << endl;
+  }
+}
+
+int main() {
+  Date date;
+
+  cout << "List of commands:" << endl;
+  cout << "\t output" << endl;
+  cout << "\t input" << endl;
+  cout << "\t inc" << endl;
+  cout << "\t decr" << endl;
+  cout << "\t quite" << endl;
+  cout << endl;
+
+  bool quite = false;
+  string cmd = "";
+  while (! quite) {
+    cout << "Input command: ";
+    cin >> cmd;
+
+    if (cmd == "output") {
+      cout << date << endl;
+    } else if ( cmd == "input") {
+      input_date(date);
+    } else if ( cmd == "inc") {
+      ++date;
+    } else if ( cmd == "decr") {
+      --date;
+    } else if ( cmd == "quite" || cmd == "q") {
+      quite = true;
+      cout << "exit" << endl;
+    } else {
+      cout << "Unknown command!" << endl;
+    }
+  }
+
+  return 0;
+}
+
+
+
+
+
+
+Составить программу, которая формирует очередь, добавляя в неё произвольное
+количество компонент.
+
+
+
+
+
+#include <iostream>
+using namespace std;
+
+class Queue {
+  struct Element {
+    int value;
+    Element* prev;
+
+    Element(int val) {
+      value = val;
+      prev = 0;
+    }
+  };
+  Element* back;
+  Element* front;
+
+public:  
+  Queue() {
+    back = 0;
+    front = 0;
+  }
+
+  void push_back(int val) {
+    Element* newel = new Element(val);
+    if ( back )
+      back->prev = newel;
+    else
+      front = newel;
+    back = newel;
+  }
+  
+  int pop_front() {
+    int res = front->value;
+    Element* oldfront = front;
+    front = front->prev;
+    if (! front) 
+      back = 0;
+    delete[] oldfront;
+    return res;
+  }
+
+  bool empty() {
+    if (front) 
+      return false;
+    else 
+      return true;
+  }
+
+  ~Queue() {
+    while (! empty())
+      pop_front();
+  }
+};
+
+int main() {
+  Queue queue;
+
+  //default
+  queue.push_back(1);
+  queue.push_back(2);
+
+  cout << "List of commands:" << endl;
+  cout << "\t push_back" << endl;
+  cout << "\t pop_front" << endl;
+  cout << "\t quite" << endl;
+  cout << endl;
+
+  bool quite = false;
+  string cmd = "";
+  while (! quite) {
+    cout << "Input command: ";
+    cin >> cmd;
+
+    if (cmd == "pop_front" || cmd == "pop") {
+      if (! queue.empty() )
+        cout << " " << queue.pop_front() << endl;
+      else
+        cout << "The queue is empty!" << endl;
+    } else if ( cmd == "push_back" || cmd == "push") {
+      int val; cout << " Input value: "; cin >> val;
+      queue.push_back(val);
+    } else if ( cmd == "quite" || cmd == "q" || cmd == "exit") {
+      quite = true;
+      cout << "exit" << endl;
+    } else {
+      cout << "Unknown command!" << endl;
+    }
+  }
+
+  return 0;
+}
+
+
+
+
+
+Подсчитать сколько раз в массиве встречается заданный элемент N. Вывести количество данных вхождений. 
+
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm> 
+using namespace std;
+
+void outputArray(int* array, int& size) {
+  cout << " array = [ ";
+  for(int i = 0; i < size; i++)
+    cout << array[i] << ", "; 
+  cout << "]" << endl;
+}
+
+int main(int argc, char const *argv[]){
+  int size = 3;
+  cout << "Input size of array = "; cin >> size;
+  int* array = new int[size];
+
+  cout << "Input array:" << endl;
+  for(int i = 0; i < size; i++) {
+    cout << " array[" << i << "] = "; cin >> array[i];
+  }
+
+  cout << "\nInputed array:" << endl;
+  outputArray(array, size);
+	int n = 5; cout << "Input N = "; cin >> n;
+
+	int count = 0;
+	for(int i = 0; i < size; i++)
+		count += array[i] == n ? 1 : 0;
+
+	cout << "\nN occurrences in inputed array " << count << " times " << endl;
+
+  return 0;
+}
+
+
+
+
+
+Найти в массиве максимальный элемент и его индекс. Вывести на печать.
+
+
+
+#include <iostream>
+using namespace std;
+
+void outputArray(int* array, int& size) {
+  cout << " array = [ ";
+  for(int i = 0; i < size; i++)
+    cout << array[i] << ", "; 
+  cout << "]" << endl;
+}
+
+int main() {
+  int size = 3;
+  cout << "Input size of array = "; cin >> size;
+  int* array = new int[size];
+
+  cout << "Input array:" << endl;
+  for(int i = 0; i < size; i++) {
+    cout << " array[" << i << "] = "; cin >> array[i];
+  }
+  cout << "\nInputed array:" << endl;
+  outputArray(array, size);
+
+  int maxElement = 0;
+  int maxIndex = 0;
+  for(int i = 0; i < size; i++)
+    if (array[i] > maxElement) {
+      maxElement = array[i];
+      maxIndex = i;
+    }
+
+  cout << "\nMax element: " << maxElement << endl;
+  cout << "Max element index: " << maxIndex + 1 << endl;
+  return 0;
+}
+
+
+
+
+
+Написать программу на языке С++, реализующую телефонный справочник. В справочнике
+содержится следующая информация о каждом абоненте: имя и телефон. Реализовать вывод
+всей информации из справочника, поиск телефона по имени, поиск имени по телефону.
+
+
+
+
+
+#include <iostream>
+#include <string>
+#include <map>
+#include <iomanip>
+using namespace std;
+
+class Directory {
+  typedef map<string, string> strmap;
+  strmap direct;
+
+public: 
+  Directory() {}
+
+  void insert(string phone, string name) {
+    direct.insert(map<string, string>::value_type(phone, name));
+  }
+
+  void output() {
+    cout << "Contents of the directory:" << endl;
+    cout << setw(25) << " phone " << " | " << setw(15) << " name " << endl;
+    strmap::const_iterator iter;
+    for (iter = direct.begin(); iter != direct.end(); iter++) {
+      cout << setw(25) << (*iter).first << " | " << setw(15) << (*iter).second << endl;
+    }
+  }
+
+  void findby_phone(const string phone) {
+    strmap::const_iterator pos = direct.find(phone);
+    if (pos == direct.end())
+      cout << "Can't find any records" << endl;
+    else
+      cout << "Find: \n\t" << (*pos).second << endl;
+  }
+
+  void findby_name(const string name) {
+    bool result = false;
+    cout << "Find: " << endl;
+    strmap::const_iterator iter;
+    for (iter = direct.begin(); iter != direct.end(); iter++) 
+      if ( (*iter).second == name ) {
+        cout << "\t" << (*iter).first << endl;
+        result = true;
+      }
+
+    if (! result)  
+      cout << "Can't find any records" << endl;
+  }
+};
+
+
+int main() {
+  Directory direct;
+
+  //default
+  direct.insert("89262624847", "Alex");
+  direct.insert("89035621111", "Alex");
+  direct.insert("+11231231212", "Tylor");
+  direct.insert("+7 (905) 567-58-34", "Vika");
+
+  cout << "List of commands:" << endl;
+  cout << "\t output" << endl;
+  cout << "\t insert" << endl;
+  cout << "\t findby_name" << endl;
+  cout << "\t findby_phone" << endl;
+  cout << "\t quite" << endl;
+  cout << endl;
+
+  bool quite = false;
+  string cmd = "";
+  while (! quite) {
+    cout << "Input command: ";
+    cin >> cmd;
+
+    if (cmd == "output") {
+      direct.output();
+    } else if ( cmd == "insert") {
+      string name; cout << "\n Input name: "; cin >> name;
+      string phone; cout << " Input phone: "; cin >> phone;
+      direct.insert(phone, name);
+    } else if ( cmd == "findby_name") {
+      string name; cout << " Input name: "; cin >> name;
+      direct.findby_name(name);
+    } else if ( cmd == "findby_phone") {
+      string phone; cout << " Input phone: "; cin >> phone;
+      direct.findby_phone(phone);
+    } else if ( cmd == "quite") {
+      quite = true;
+      cout << "exit" << endl;
+    } else {
+      cout << "Unknown command!" << endl;
+    }
+  }
+
+  return 0;
+}
+
+
+
+
+
+
+Построить программу на языке С++ для работы со структурами – квадратными матрицами. Структура должна включать соответствующие поля: порядок, набор коэффициентов. Программа должна обеспечивать простейшие функции для работы с данными структуры: ввод матрицы, транспонирование матрицы, вывод матрицы в удобной форме 
+
+
+
+
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+class Matrix {
+  int** matrix;
+  int order;
+
+  void set_order(int ord = 0) {
+    matrix = new int*[ord];
+    for(int i=0; i < ord; i++)
+      matrix[i] = new int[ord];
+    order = ord;
+  }
+
+public:
+  Matrix(int ord) {
+    matrix = 0;
+    set_order(ord);
+  }
+
+  int get_order() const { return order; }
+
+  void input() {
+    cout << "Input matrix:" << endl;
+    for(int i = 0; i < order; i++)
+      for(int j = 0; j < order; j++) {
+        cout << " matrix[" << i << "][" << j << "] = "; cin >> matrix[i][j];
+      }
+  }
+
+  void output() {
+    for(int i = 0; i < order; i++) {
+      for(int j = 0; j < order; j++)
+        cout << setw(5) << matrix[i][j];
+      cout << endl;
+    }
+  }
+
+  void bufferSwap (int &x, int &y) {
+    int temp = y;
+    y = x;
+    x = temp;
+  }
+
+  void transp() {
+    for(int diag = 0; diag < (order-1); diag++) 
+      for(int j = diag + 1; j < order; j++) 
+        bufferSwap(matrix[j][diag], matrix[diag][j]);
+  }
+
+  ~Matrix() {
+    for(int i=0; i < order; i++)
+      delete[] matrix[i];
+    delete[] matrix;
+  }
+};
+
+int main(int argc, char const *argv[]){
+  int order = 0;
+  cout << "Input order of a matrix = "; cin >> order;
+  Matrix matrix(order);
+  matrix.input();
+
+  cout << "List of commands:" << endl;
+  cout << "\t output" << endl;
+  cout << "\t transp" << endl;
+  cout << "\t outorder" << endl;
+  cout << "\t quite" << endl;
+  cout << endl;
+
+  bool quite = false;
+  string cmd = "";
+  while (! quite) {
+    cout << "Input command: ";
+    cin >> cmd;
+
+    if (cmd == "output" || cmd == "out") {
+      matrix.output();
+    } else if ( cmd == "transp") {
+      matrix.transp();
+      cout << "Transporting matrix:" << endl;
+      matrix.output();
+    } else if ( cmd == "outorder") {
+      cout << "Order of the matrix = " << matrix.get_order() << endl;
+    } else if ( cmd == "quite" || cmd == "q") {
+      quite = true;
+      cout << "exit" << endl;
+    } else {
+      cout << "Unknown command!" << endl;
+    }
+  }
+
+  return 0;
+}
+
+
+
+
+
+
+Написать программу на языке С++ для удаления из списка целых всех элементов, равных 0.  Например: [1,0,2,0,3,0] [1,2,3].
+
+
+
+
+
+#include <iostream>
+#include <list>
+using namespace std;
+
+int main(int argc, char const *argv[]){
+  int size = 3;
+  cout << "Input size of array = "; cin >> size;
+  list<int> array;
+
+  cout << "Input array:" << endl;
+  int val;
+  for(int i = 0; i < size; i++) {
+    cout << " array[" << i << "] = "; cin >> val;
+    array.push_back(val);
+  }
+  cout << "\nInputed array:" << endl;
+  for (list<int>::iterator it = array.begin(); it != array.end(); it++) 
+    cout << " " << *it ;
+
+  array.remove(0);
+
+  cout << "\nThe array without 0:" << endl;
+  for (list<int>::iterator it = array.begin(); it != array.end(); it++) 
+    cout << " " << *it ;
+
+  return 0;
+}
+
+
+
+
+
+
+Дан массив типа word размерностью n. Найти сумму всех элементов, не превышающих заданного m, далее вывести на экран.  
+
+
+
+
+#include <iostream>
+using namespace std;
+
+void outputArray(unsigned short* array, unsigned short& size) {
+  cout << " array = [ ";
+  for(unsigned short i = 0; i < size; i++)
+    cout << array[i] << ", "; 
+  cout << "]" << endl;
+}
+
+int main() {
+  unsigned short size = 3;
+  cout << "Input size of array = "; cin >> size;
+  unsigned short* array = new unsigned short[size];
+
+  cout << "Input array:" << endl;
+  for(unsigned short i = 0; i < size; i++) {
+    cout << " array[" << i << "] = "; cin >> array[i];
+  }
+  cout << "\nInputed array:" << endl;
+  outputArray(array, size);
+  unsigned short m = 5; cout << "Input m = "; cin >> m;
+
+  unsigned long sum = 0;
+  for(unsigned short i = 0; i < size; i++)
+    if ( array[i] < m )
+      sum += array[i];
+  cout << "\nSum of elements < " << m << " = " << sum << endl; 
+
+  return 0;
+}
+
+/*
+ * word type: 2 bytes, 0..65535
+ * unsigned short in C++ is the same as word in Pascal
+ */
+
+
+
+
+
+На языке С++ вычислить сумму ряда целых чисел от 1 до n.
+
+
+
+
+
+#include <iostream>
+using namespace std;
+
+int main() {
+  int n = 0;
+  cout << "n = "; cin >> n;
+  int S = 0;
+  for (int i=1; i <= n; i++) 
+    S += i;
+  cout << "Sum = " << S << endl;  
+
+  return 0;
+}
+
+
+
+
+
+
+Если элементы массивы D*1...5+ равны соответственно 4, 1, 5, 3, 2, то значение выражение
+D[D[3]]-D[D[5]] равно?
+
+
+
+
+
+#include <iostream>
+using namespace std;
+
+
+int main() {
+  char D[] = {0,4,1,5,3,2};
+  cout << "D[D[3]]-D[D[5]] = " << D[D[3]]-D[D[5]] << endl;
+
+  return 0;
+}
+
+
+
+
+
+
+Написать программу на языке С++ для реверса списка. Например: [1,2,3] [3,2,1]
+
+
+
+
+
+#include <iostream>
+using namespace std;
+
+void xorSwap (int &x, int &y) {
+ if (x != y) {
+   x ^= y;
+   y ^= x;
+   x ^= y;
+ }
+}
+
+void bufferSwap (int &x, int &y) {
+  int temp = y;
+  y = x;
+  x = temp;
+}
+
+void outputArray(int* array, int& size) {
+  cout << " array = [ ";
+  for(int i = 0; i < size; i++)
+    cout << array[i] << ", "; 
+  cout << "]" << endl;
+}
+
+int main(int argc, char const *argv[]){
+  int size = 3;
+  cout << "Input size of array = "; cin >> size;
+  int* array = new int[size];
+
+  cout << "Input array:" << endl;
+  for(int i = 0; i < size; i++) {
+    cout << " array[" << i << "] = "; cin >> array[i];
+  }
+  cout << "\nInputed array:" << endl;
+  outputArray(array, size);
+
+  for(int left = 0, right = size - 1; left < size/2; left++, right--)
+    xorSwap(array[left], array[right]);
+  cout << "\nReverted with XOR:" << endl;
+  outputArray(array, size);
+  
+  for(int left = 0, right = size - 1; left != right; left++, right--)
+    bufferSwap(array[left], array[right]);
+  cout << "\nReverted the reverted array with buffer:" << endl;
+  outputArray(array, size);
+
+  delete[] array;
+  return 0;
+}
+
+/*
+XOR:
+a= 1010
+b= 0011
+
+a= 1001
+b= 1010
+a= 0011
+*/
+
+
+
+
+
+Информация о студенте включает: ФИО, порядковый номер, название факультета, номер специальности, дату рождения, адрес проживания, телефон. Информация о студентах хранится в виде записей в массиве. Число записей в массиве 100. Отсортировать всех студентов в алфавитном порядке. Обосновать выбор алгоритма сортировки.
+
+
+
+
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+#define SIZE 10 //100
+#define NAME_WIDTH 20
+
+static unsigned int n = 0;
+
+class Student {
+public:
+  string name;
+  unsigned int num;
+  string depart;
+  string num_speciality;
+  string birthday;
+  string address;
+  string phone;
+
+  Student(string na = "Default Name", 
+          unsigned int nu = ++n, 
+          string dep = "Department", 
+          string nu_s = "230105/c", 
+          string bi = "01/02/2003", 
+          string ad = "Moscow", 
+          string ph = "+7 (123) 456-78-90") {
+    name = na;
+    num = nu;
+    depart = dep;
+    num_speciality = nu_s;
+    birthday = bi;
+    address = ad;
+    phone = ph;
+  }
+  
+};
+
+bool operator< (Student &stu1, Student &stu2) {
+  return (stu1.name < stu2.name);
+}
+
+bool operator> (Student &stu1, Student &stu2) {
+  return (stu1.name > stu2.name);
+}
+
+ostream& operator<< (ostream &out, const Student &stu) {
+    out << setiosflags(ios::left);
+    out << " " << setw(NAME_WIDTH) << stu.name 
+        << " " << stu.num
+        << " " << stu.depart
+        << " " << stu.num_speciality
+        << " " << stu.birthday
+        << " " << stu.address
+        << " " << stu.phone;
+    return out;
+}
+
+template <typename T>
+void output(T* array) {
+  for(int i=0; i<SIZE; i++) 
+    cout << array[i] << endl;
+}
+
+/*
+  Name: qsort (quick sort) or Hoare sort
+  Cases: 
+      O(n*log(n))   --best
+      O(n*log(n))   --average
+      O(n^2)        --worst
+*/
+template <typename T>
+void sort(T* array, int l=0, int r=SIZE-1) {
+  int i=l;
+  int j=r;
+
+  // Выбираем опорный элемент
+  T* pivot = &array[static_cast<int>((i+j)/2)]; 
+
+  // Сортируем относительно опроного элемента
+  do {
+    while (array[i] < *pivot)
+      i++;
+    while (array[j] > *pivot)
+      j--;
+    if (i<=j) {
+      T temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+      i++;
+      j--;
+    }
+  } while (i<j);
+  
+  // Обрабатываем полученные две части
+  if (l<j)
+    sort(array, l, j);
+  if (i<r)
+    sort(array, i, r);
+}
+
+int main() {
+  Student* array = new Student[SIZE];
+  array[0].name = "Danilov Alex";
+  array[1].name = "Tokmakova Viktorya";
+  array[2].name = "Bogdanova V";
+  array[3].name = "Popov D";
+  array[4].name = "Pron'kin O";
+  array[5].name = "Efim";
+  array[6].name = "Tylor";
+  array[7].name = "Brian";
+  array[8].name = "Linus Torvalds";
+  array[9].name = "Cat";
+
+  cout << "Unsorted:" << endl;
+  output(array);
+  cout << endl;
+
+  cout << "Sorted:" << endl;
+  sort(array);
+  output(array);
+
+  cout << endl;
+  delete[] array;
+
+  return 0;
+}
+
+
+
+
+
+Написать процедуру, которая выполняет вставку компоненты по заданному
+ключу
+
+
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Dict {
+  struct Element {
+    int key;
+    string val;
+    Element(int k=0, string v="") {
+      key = k;
+      val = v;
+    }
+  };
+  Element* array;
+  int size;
+
+public:
+  Dict() {
+    array = 0;
+    size = 0;
+  }
+
+  string& operator[] (const int key) {
+    // try to find value with such key
+    for(int i=0; i < size; i++) 
+      if (array[i].key == key) 
+        return array[i].val;
+
+    // create new value if can't find 
+    
+    // realloc (extend array)
+    Element* temp = new Element[size+1];
+    copy(array, array + size, temp);
+    delete[] array;
+    array = temp;
+    ++size;
+
+    array[size-1].key = key;
+    array[size-1].val = "";
+    return array[size-1].val;
+  }
+
+  ~Dict() {
+    delete[] array;
+    array = 0;
+  }
+};
+
+int main() {
+  Dict dict;
+
+  cout << "List of commands:" << endl;
+  cout << "\t insert" << endl;
+  cout << "\t output" << endl;
+  cout << "\t quite" << endl;
+  cout << endl;
+
+  bool quite = false;
+  string cmd = "";
+  while (! quite) {
+    cout << "Input command: ";
+    cin >> cmd;
+
+    if (cmd == "insert" || cmd == "in") {
+      int key; cout << " Input key: "; cin >> key;
+      string val; cout << " Input value: "; cin >> val;
+      dict[key] = val;
+    } else if ( cmd == "output" || cmd == "out") {
+      int key; cout << " Input key: "; cin >> key;
+      cout << "Value by key(" << key << ") = " << dict[key] << endl; 
+    } else if ( cmd == "quite" || cmd == "q" || cmd == "exit") {
+      quite = true;
+      cout << "exit" << endl;
+    } else {
+      cout << "Unknown command!" << endl;
+    }
+  }
+  return 0;
+}
+
+
+
+
+
+Составить программу, которая формирует стек, добавляя в него произвольное количество компонент
+
+
+
+
+
+#include <iostream>
+using namespace std;
+
+class Stack {
+  struct Element {
+    int value;
+    Element* prev;
+
+    Element(int val) {
+      value = val;
+      prev = 0;
+    }
+  };
+  Element* bottom;
+  Element* top;
+
+public:  
+  Stack() {
+    bottom = 0;
+    top = 0;
+  }
+
+  void push(int val) {
+    Element* newel = new Element(val);
+    if ( bottom )
+      newel->prev = top;
+    else
+      bottom = newel;
+    top = newel;
+  }
+  
+  int pop() {
+    int res = top->value;
+    Element* oldfront = top;
+    top = top->prev;
+    if (! top) 
+      bottom = 0;
+    delete[] oldfront;
+    return res;
+  }
+
+  bool empty() {
+    if (top) 
+      return false;
+    else 
+      return true;
+  }
+
+  ~Stack() {
+    while (! empty())
+      pop();
+  }
+};
+
+int main() {
+  Stack stack;
+
+  //default
+  stack.push(1);
+  stack.push(2);
+
+  cout << "List of commands:" << endl;
+  cout << "\t push" << endl;
+  cout << "\t pop" << endl;
+  cout << "\t quite" << endl;
+  cout << endl;
+
+  bool quite = false;
+  string cmd = "";
+  while (! quite) {
+    cout << "Input command: ";
+    cin >> cmd;
+
+    if (cmd == "pop") {
+      if (! stack.empty() )
+        cout << " " << stack.pop() << endl;
+      else
+        cout << "The stack is empty!" << endl;
+    } else if ( cmd == "push" ) {
+      int val; cout << " Input value: "; cin >> val;
+      stack.push(val);
+    } else if ( cmd == "quite" || cmd == "q" || cmd == "exit") {
+      quite = true;
+      cout << "exit" << endl;
+    } else {
+      cout << "Unknown command!" << endl;
+    }
+  }
+
+  return 0;
+}
+
+
+
+
+
+
+Построить программу на языке С++ для работы со структурами – строками. Структура
+должна включать следующие поля: массив для хранения строки, его длину, время создания
+строки. Программа должна обеспечивать простейшие функции для работы с данными
+структуры: изменение строки, вывод строки, нахождение подстроки в строке.
+
+
+
+
+
+#include <iostream>
+#include <cstring>
+#include <ctime>
+#include <exception>
+#include <string>
+
+#define DISTINCT 10
+using namespace std;
+
+struct stringException : public exception {
+  const char * what () const throw () {
+    return "String Exception";
+  }
+};
+
+struct cantfind_substr : public stringException {
+  const char * what () const throw () {
+    return "Can't find substr in current string";
+  }
+};
+
+class String {
+  char* str;
+  int len;
+  int maxlen_inheap;
+  char* creationTime;
+
+  void fillin_creationTime() {
+     time_t now = time(0); // current date/time based on current system
+     creationTime = ctime(&now); // convert now to string form
+  }
+
+public:  
+  String(const char* string = "") {
+    str = 0; len = 0;
+    fillin_creationTime();
+    set_str(string);
+  }
+
+  // copy constructor
+  String(const String &string) {
+    str = 0; len = 0;
+    fillin_creationTime();
+    set_str(string.get_str());
+    len = string.get_len();
+  }
+
+  char* get_str() const { return str; }
+  int get_len() const { return len-1; }
+  char* get_creationTime() const { return creationTime; }
+
+  void set_str(const char* string) {
+    int newlen = strlen(string) + 1;  // with null char
+    // Change size to more size in any case and to less one in case of big distinction
+    if (newlen > maxlen_inheap || newlen < (maxlen_inheap - DISTINCT)) {
+      delete[] str; str = 0;
+      str = new char[newlen];
+      maxlen_inheap = newlen;
+    }
+    len = newlen;
+    copy(string, string+newlen, str);
+    fillin_creationTime();
+  }
+
+  String& operator= (const String &string) {
+    // check for self-assignment by comparing the address of the
+    // implicit object and the parameter
+    if (this == &string)
+        return *this;
+
+    set_str(string.get_str());
+ 
+    return *this;
+  }
+  String& operator= (const char* string) {
+    set_str(string);
+ 
+    return *this;
+  }
+
+  int find_substr(const char* substr) {
+    for (int i = 0; i < len-1; i++) 
+      if (str[i] == substr[0]) {
+        int j;
+        for (j = 0; substr[j] != '\0'; j++) 
+          if (str[i+j] != substr[j])
+            break;
+        if (substr[j] == '\0') 
+          return i+1;
+        }
+    throw cantfind_substr();
+  }
+
+  ~String() {
+    if (str) {
+      delete[] str; str = 0;
+    }
+  }
+};
+
+ostream &operator << (ostream &out, const String &str) {
+  out << str.get_str();
+  return out;
+}
+
+istream& operator>> (istream &in, String &str) {
+  string inputted;
+  getline(in, inputted); getline(in, inputted);
+  str.set_str(inputted.c_str());
+
+  return in;
+}
+
+int main(int argc, char const *argv[]){
+  String str("hello");
+
+  cout << "List of commands:" << endl;
+  cout << "\t input" << endl;
+  cout << "\t output" << endl;
+  cout << "\t outlen" << endl;
+  cout << "\t find" << endl;
+  cout << "\t creation_time" << endl;
+  cout << "\t quite" << endl;
+  cout << endl;
+
+  bool quite = false;
+  string cmd = "";
+  while (! quite) {
+    cout << "Input command: ";
+    cin >> cmd;
+
+    if (cmd == "input" || cmd == "in") {
+      cout << " Input string: "; cin >> str;
+    } else if ( cmd == "output" || cmd == "out") {
+      cout << " " << str << endl;
+    } else if ( cmd == "outlen") {
+      cout << " Lenght of the string = " << str.get_len() << endl;
+    } else if ( cmd == "find") {
+      string substr; 
+      cout << " Input substring which you want to find in the inputted string: ";
+      getline(cin, substr); getline(cin, substr);
+      try {
+        cout << " Index of substr in the string = " << str.find_substr(substr.c_str()) << endl;
+      }
+      catch(cantfind_substr e) {
+        cout <<  " " << e.what() << endl;
+      } 
+    } else if ( cmd == "creation_time" || cmd == "ct") {
+      cout << " Creation time of the string = " << str.get_creationTime();
+    } else if ( cmd == "quite" || cmd == "q") {
+      quite = true;
+      cout << "exit" << endl;
+    } else {
+      cout << " Unknown command!" << endl;
+    }
+  }
+  return 0;
+}
+
+
+
+
+
+
+Вычислить факториал числа 8.
+
+
+
+
+
+#include <iostream>
+using namespace std;
+
+#define NUM 8
+
+int main() {
+  int F = 1;
+  for (int i=2; i <= NUM; i++) 
+    F *= i;
+  cout << NUM << "! = " << F << endl;  
+
+  return 0;
+}
+
+
+
