@@ -44,6 +44,7 @@ int main(int argc, char const *argv[]){
   cout << "\nReverted the reverted array with buffer:" << endl;
   outputArray(array, size);
 
+  delete[] array;
   return 0;
 }
 
