@@ -127,7 +127,7 @@ int main() {
       ++date;
     } else if ( cmd == "decr") {
       --date;
-    } else if ( cmd == "quite") {
+    } else if ( cmd == "quite" || cmd == "q") {
       quite = true;
       cout << "exit" << endl;
     } else {

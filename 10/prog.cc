@@ -1,18 +1,18 @@
 #include <iostream>
 using namespace std;
 
-void xorSwap (int *x, int *y) {
+void xorSwap (int &x, int &y) {
  if (x != y) {
-   *x ^= *y;
-   *y ^= *x;
-   *x ^= *y;
+   x ^= y;
+   y ^= x;
+   x ^= y;
  }
 }
 
-void bufferSwap (int *x, int *y) {
-  int temp = *y;
-  *y = *x;
-  *x = temp;
+void bufferSwap (int &x, int &y) {
+  int temp = y;
+  y = x;
+  x = temp;
 }
 
 void outputArray(int* array, int& size) {
@@ -35,12 +35,12 @@ int main(int argc, char const *argv[]){
   outputArray(array, size);
 
   for(int left = 0, right = size - 1; left < size/2; left++, right--)
-    xorSwap(&array[left], &array[right]);
+    xorSwap(array[left], array[right]);
   cout << "\nReverted with XOR:" << endl;
   outputArray(array, size);
   
   for(int left = 0, right = size - 1; left != right; left++, right--)
-    bufferSwap(&array[left], &array[right]);
+    bufferSwap(array[left], array[right]);
   cout << "\nReverted the reverted array with buffer:" << endl;
   outputArray(array, size);
 
